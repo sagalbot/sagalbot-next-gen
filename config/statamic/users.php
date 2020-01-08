@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'repository' => 'eloquent',
+    'repository' => 'file',
 
     'repositories' => [
 
@@ -46,6 +46,6 @@ return [
     |
     */
 
-    'avatars' => 'initials',
+    'avatars' => 'gravatar',
 
 ];
