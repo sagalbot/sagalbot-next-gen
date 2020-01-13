@@ -1,0 +1,9 @@
+title: Posts
+route: 'posts/{slug}'
+revisions: false
+date: true
+sort_dir: desc
+default_status: draft
+date_behavior:
+  past: public
+  future: private

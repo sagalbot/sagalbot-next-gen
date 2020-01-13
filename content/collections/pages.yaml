@@ -1,0 +1,13 @@
+title: Pages
+route: '/{slug}'
+blueprints:
+  - flexible_content
+orderable: true
+structure: pages
+revisions: false
+date: true
+sort_dir: desc
+default_status: draft
+date_behavior:
+  past: public
+  future: private

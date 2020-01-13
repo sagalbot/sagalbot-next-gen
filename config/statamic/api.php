@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'enabled' => env('STATAMIC_API_ENABLED', false),
+    'enabled' => env('STATAMIC_API_ENABLED', true),
 
     'route' => env('STATAMIC_API_ROUTE', 'api'),
 
