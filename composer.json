@@ -16,7 +16,8 @@
         "league/html-to-markdown": "^4.9",
         "orchestra/parser": "^4.0",
         "sagalbot/statamic-wordpress-importer": "*",
-        "statamic/cms": "^3.0@beta"
+        "statamic/cms": "^3.0@beta",
+        "ext-simplexml": "*"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

@@ -22,6 +22,13 @@ trait FakeXmlStorage
         return simplexml_load_file($this->xmlStubPath());
     }
 
+    protected function item() : \SimpleXMLElement
+    {
+        $xml = $this->xml();
+
+        return $xml->xpath('channel/item')[0];
+    }
+
     protected function xmlStubPath(): string
     {
         return base_path('tests/Stubs/wordpress-import.xml');
