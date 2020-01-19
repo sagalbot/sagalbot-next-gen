@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
 use Illuminate\Support\Facades\Storage;
@@ -43,6 +45,11 @@ class Import extends Command
     private $converter;
 
     /**
+     * @var \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection
+     */
+    private $postTypes;
+
+    /**
      * Create a new command instance.
      *
      * @param \Illuminate\Contracts\Filesystem\Filesystem $storage
@@ -52,6 +59,7 @@ class Import extends Command
         parent::__construct();
 
         $this->storage = $storage;
+        $this->postTypes = collect();
     }
 
     /**
@@ -66,12 +74,12 @@ class Import extends Command
 
         //$this->file = $this->choice('What file would you like to import?', $this->files());
 
-        $posts = $this->importXML();
+        $posts = $this->parseXML();
 
         dd($posts);
     }
 
-    protected function importXML()
+    protected function parseXML()
     {
         $xml = simplexml_load_file('/Users/sagalbot/Sites/sagalbot-next-gen/storage/app/imports/code.sagalbot.com.2020-01-18.xml');
 
@@ -89,7 +97,7 @@ class Import extends Command
             $namespaces
         ) {
             $post = [
-                'title' => (string) $item->title,
+                'title' => trim((string) $item->title),
             ];
 
             $dc = $item->children('http://purl.org/dc/elements/1.1/');
@@ -98,19 +106,54 @@ class Import extends Command
             $content = $item->children('http://purl.org/rss/1.0/modules/content/');
             $excerpt = $item->children($namespaces['excerpt']);
 
-            $post['content'] = (string) $content->encoded;
-            $post['excerpt'] = (string) $excerpt->encoded;
-            $post['markdown'] = $this->converter->convert((string) $content->encoded);
+            $post['content'] = trim((string) $content->encoded);
+            $post['excerpt'] = trim((string) $excerpt->encoded);
 
-            $wp = $item->children($namespaces['wp']);
-            $post['post_id'] = (int) $wp->post_id;
-            $post['post_parent'] = (int) $wp->post_parent;
-            $post['post_date_gmt'] = (string) $wp->post_date_gmt;
-            $post['post_name'] = trim((string) $wp->post_name);
-
-            if (isset($wp->attachment_url)) {
-                $post['attachment_url'] = (string) $wp->attachment_url;
+            if ($post['excerpt'] === "" && Str::contains($post['content'], '<!--more-->')) {
+                $post['excerpt'] = Str::before((string) $content->encoded, '<!--more-->');
+                $post['content'] = Str::replaceFirst('<!--more-->', '', (string) $content->encoded);
             }
+
+            collect($item->children($namespaces['wp']))->each(function ($value, $key) use (&$post) {
+                if ((string) $key === 'postmeta') {
+                    return $post['postmeta'][] = [
+                        'key'   => (string) $value->meta_key,
+                        'value' => (string) $value->meta_value,
+                    ];
+                } elseif ((string) $key === 'postmeta') {
+                    $meta = [];
+
+                    if (isset($value->commentmeta)) {
+                        foreach ($value->commentmeta as $m) {
+                            $meta[] = [
+                                'key'   => (string) $m->meta_key,
+                                'value' => (string) $m->meta_value,
+                            ];
+                        }
+                    }
+
+                    $post['comments'][] = [
+                        'comment_id'           => (int) $value->comment_id,
+                        'comment_author'       => (string) $value->comment_author,
+                        'comment_author_email' => (string) $value->comment_author_email,
+                        'comment_author_IP'    => (string) $value->comment_author_IP,
+                        'comment_author_url'   => (string) $value->comment_author_url,
+                        'comment_date'         => (string) $value->comment_date,
+                        'comment_date_gmt'     => (string) $value->comment_date_gmt,
+                        'comment_content'      => (string) $value->comment_content,
+                        'comment_markdown'     => $this->converter->convert((string) $value->comment_content),
+                        'comment_approved'     => (string) $value->comment_approved,
+                        'comment_type'         => (string) $value->comment_type,
+                        'comment_parent'       => (string) $value->comment_parent,
+                        'comment_user_id'      => (int) $value->comment_user_id,
+                        'commentmeta'          => $meta,
+                    ];
+                } else {
+                    $post[(string) $key] = trim((string) $value);
+                }
+            });
+
+            in_array($post['post_type'], $this->postTypes->toArray()) ?: $this->postTypes->push($post['post_type']);
 
             foreach ($item->category as $c) {
                 $att = $c->attributes();
@@ -121,42 +164,6 @@ class Import extends Command
                         'slug'  => trim((string) $att['nicename']),
                     ];
                 }
-            }
-
-            foreach ($wp->postmeta as $meta) {
-                $post['postmeta'][] = [
-                    'key'   => (string) $meta->meta_key,
-                    'value' => (string) $meta->meta_value,
-                ];
-            }
-
-            foreach ($wp->comment as $comment) {
-                $meta = [];
-                if (isset($comment->commentmeta)) {
-                    foreach ($comment->commentmeta as $m) {
-                        $meta[] = [
-                            'key'   => (string) $m->meta_key,
-                            'value' => (string) $m->meta_value,
-                        ];
-                    }
-                }
-
-                $post['comments'][] = [
-                    'comment_id'           => (int) $comment->comment_id,
-                    'comment_author'       => (string) $comment->comment_author,
-                    'comment_author_email' => (string) $comment->comment_author_email,
-                    'comment_author_IP'    => (string) $comment->comment_author_IP,
-                    'comment_author_url'   => (string) $comment->comment_author_url,
-                    'comment_date'         => (string) $comment->comment_date,
-                    'comment_date_gmt'     => (string) $comment->comment_date_gmt,
-                    'comment_content'      => (string) $comment->comment_content,
-                    'comment_markdown'     => $this->converter->convert((string) $comment->comment_content),
-                    'comment_approved'     => (string) $comment->comment_approved,
-                    'comment_type'         => (string) $comment->comment_type,
-                    'comment_parent'       => (string) $comment->comment_parent,
-                    'comment_user_id'      => (int) $comment->comment_user_id,
-                    'commentmeta'          => $meta,
-                ];
             }
 
             return (object) $post;

@@ -45,3 +45,30 @@ sections:
           type: bard
           localizable: false
           display: Content
+      -
+        handle: wp_html
+        field:
+          buttons:
+            - h2
+            - h3
+            - bold
+            - italic
+            - unorderedlist
+            - orderedlist
+            - removeformat
+            - quote
+            - anchor
+            - image
+            - table
+          save_html: true
+          toolbar_mode: fixed
+          link_noopener: false
+          link_noreferrer: false
+          target_blank: false
+          reading_time: false
+          fullscreen: false
+          allow_source: true
+          type: bard
+          localizable: false
+          listable: hidden
+          display: 'WP HTML'
