@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
+use DateTimeZone;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Laravie\Parser\Xml\Reader;
 use Laravie\Parser\Xml\Document;
@@ -12,6 +14,8 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 
 use League\HTMLToMarkdown\HtmlConverter;
 use SimpleXMLElement;
+use Statamic\Contracts\Entries\EntryRepository;
+use Statamic\Facades\Entry;
 
 class Import extends Command
 {
@@ -33,6 +37,11 @@ class Import extends Command
      * @var string
      */
     protected $file;
+
+    /**
+     * @var \Statamic\Contracts\Entries\EntryRepository
+     */
+    protected $entries;
 
     /**
      * @var \Illuminate\Contracts\Filesystem\Filesystem
@@ -66,17 +75,58 @@ class Import extends Command
      * Execute the console command.
      *
      * @param \League\HTMLToMarkdown\HtmlConverter $converter
+     * @param \Statamic\Contracts\Entries\EntryRepository $entries
      * @return mixed
      */
-    public function handle(HtmlConverter $converter)
+    public function handle(HtmlConverter $converter, EntryRepository $entries)
     {
         $this->converter = $converter;
+        $this->entries = $entries;
 
         //$this->file = $this->choice('What file would you like to import?', $this->files());
 
         $posts = $this->parseXML();
+
+        $posts->where('post_type', '=', 'post')->each(function ($post) {
+            $this->createArticle($post);
+        });
     }
 
+    protected function createArticle($post)
+    {
+        /** @var \Statamic\Entries\Entry $entry */
+        $entry = $this->entries->make();
+
+        //  Sun, 11 Apr 2010 00:54:00 +0000
+        //  2015-12-09 20:32:51
+        //  2014-02-16 23:51:42
+        $date = Carbon::createFromFormat('Y-m-d H:i:s', $post->post_date_gmt, new DateTimeZone('GMT'))->format('Y-m-d-Hi');
+
+        $entry->date($date);
+        //dd($entry);
+
+        $entry->collection('articles');
+        $entry->slug(Str::slug($post->title));
+        $entry->locale('default');
+
+        $entry->set('title', $post->title);
+        $entry->set('pubDate', $post->pubDate);
+        $entry->set('post_id', $post->post_id);
+        $entry->set('post_date', $post->post_date);
+        $entry->set('post_parent', $post->post_parent);
+        $entry->set('post_password', $post->post_password);
+
+        $entry->set('content', $this->converter->convert($post->content));
+        $entry->set('excerpt', $this->converter->convert($post->excerpt));
+
+        $entry->published($post->status === 'draft' ? false : true);
+
+        $entry->save();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection
+     */
     protected function parseXML()
     {
         $xml = simplexml_load_file('/Users/sagalbot/Sites/sagalbot-next-gen/storage/app/imports/sagalbot.com.2020-01-18.xml');
@@ -95,7 +145,8 @@ class Import extends Command
             $namespaces
         ) {
             $post = [
-                'title' => trim((string) $item->title),
+                'title'   => trim((string) $item->title),
+                'pubDate' => trim((string) $item->pubDate),
             ];
 
             $dc = $item->children('http://purl.org/dc/elements/1.1/');
@@ -114,7 +165,7 @@ class Import extends Command
 
             collect($item->children($namespaces['wp']))->each(function ($value, $key) use (&$post) {
                 if ((string) $key === 'postmeta') {
-                    return $post['postmeta'][] = [
+                    $post['postmeta'][] = [
                         'key'   => (string) $value->meta_key,
                         'value' => (string) $value->meta_value,
                     ];
@@ -165,6 +216,8 @@ class Import extends Command
             }
 
             return (object) $post;
+        })->sortBy(function ($post) {
+            return $post->post_date;
         });
     }
 
