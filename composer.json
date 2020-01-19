@@ -12,6 +12,8 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^6.2",
         "laravel/tinker": "^2.0",
+        "laravie/parser": "^2.0",
+        "league/html-to-markdown": "^4.9",
         "orchestra/parser": "^4.0",
         "sagalbot/statamic-wordpress-importer": "*",
         "statamic/cms": "^3.0@beta"

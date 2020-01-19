@@ -4,6 +4,8 @@ blueprints:
   - flexible_content
 orderable: true
 structure: pages
+taxonomies:
+  - tags
 revisions: false
 date: true
 sort_dir: desc

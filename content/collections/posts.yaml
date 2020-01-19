@@ -1,8 +1,10 @@
-title: Posts
+title: Articles
 route: 'posts/{slug}'
+taxonomies:
+  - tags
+  - categories
 revisions: false
 date: true
-sort_dir: desc
 default_status: draft
 date_behavior:
   past: public

@@ -1,0 +1,22 @@
+title: 'Basic Taxonomy'
+sections:
+  main:
+    display: Main
+    fields:
+      -
+        handle: title
+        field:
+          type: text
+          localizable: false
+          listable: true
+          display: Title
+          validate: required
+      -
+        handle: slug
+        field:
+          generate: true
+          type: slug
+          localizable: false
+          listable: hidden
+          display: Slug
+          validate: required

@@ -4,6 +4,18 @@ sections:
     display: Main
     fields:
       -
+        handle: excerpt
+        field:
+          restrict: false
+          automatic_line_breaks: true
+          automatic_links: false
+          escape_markup: false
+          smartypants: false
+          type: markdown
+          localizable: false
+          listable: hidden
+          display: Excerpt
+      -
         handle: content
         field:
           buttons:
