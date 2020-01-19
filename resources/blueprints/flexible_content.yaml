@@ -18,32 +18,14 @@ sections:
       -
         handle: content
         field:
-          buttons:
-            - h2
-            - h3
-            - bold
-            - italic
-            - unorderedlist
-            - orderedlist
-            - removeformat
-            - quote
-            - anchor
-            - image
-            - table
-            - underline
-            - strikethrough
-            - code
-            - codeblock
-          save_html: false
-          toolbar_mode: fixed
-          link_noopener: false
-          link_noreferrer: false
-          target_blank: true
-          reading_time: true
-          fullscreen: true
-          allow_source: true
-          type: bard
+          restrict: false
+          automatic_line_breaks: true
+          automatic_links: false
+          escape_markup: false
+          smartypants: false
+          type: markdown
           localizable: false
+          listable: hidden
           display: Content
       -
         handle: wp_html

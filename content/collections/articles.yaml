@@ -1,5 +1,7 @@
 title: Articles
 route: 'posts/{slug}'
+blueprints:
+  - flexible_content
 taxonomies:
   - tags
   - categories

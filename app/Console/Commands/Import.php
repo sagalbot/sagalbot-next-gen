@@ -75,13 +75,11 @@ class Import extends Command
         //$this->file = $this->choice('What file would you like to import?', $this->files());
 
         $posts = $this->parseXML();
-
-        dd($posts);
     }
 
     protected function parseXML()
     {
-        $xml = simplexml_load_file('/Users/sagalbot/Sites/sagalbot-next-gen/storage/app/imports/code.sagalbot.com.2020-01-18.xml');
+        $xml = simplexml_load_file('/Users/sagalbot/Sites/sagalbot-next-gen/storage/app/imports/sagalbot.com.2020-01-18.xml');
 
         $namespaces = $xml->getDocNamespaces();
 
