@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Http\FileHelpers;
 use Illuminate\Http\Testing\File;
 use Tests\TestCase;
 use App\Console\Commands\Import;
@@ -12,6 +13,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ImportXmlTest extends TestCase
 {
+    use FakeXmlStorage;
+
     /**
      * @var Import
      */
@@ -23,10 +26,7 @@ class ImportXmlTest extends TestCase
 
         $this->import = resolve(Import::class);
 
-        Storage::persistentFake();
-
-        Storage::put('imports/hello.xml', '<hello></hello>');
-        Storage::put('imports/world.xml', '<world></world>');
+        $this->storeXmlStubToFakeStorage();
     }
 
     /**
@@ -36,8 +36,7 @@ class ImportXmlTest extends TestCase
     {
         $files = $this->import->files();
 
-        $this->assertContains('imports/hello.xml', $files);
-        $this->assertContains('imports/world.xml', $files);
+        $this->assertContains('imports/wordpress-import.xml', $files);
     }
 
     /**
@@ -46,6 +45,6 @@ class ImportXmlTest extends TestCase
     public function it_will_ask_what_file_you_want_to_import()
     {
         $this->artisan('wordpress:import')
-             ->expectsQuestion('What file would you like to import?', 'imports/hello.xml');
+             ->expectsQuestion('What file would you like to import?', 'imports/wordpress-import.xml');
     }
 }

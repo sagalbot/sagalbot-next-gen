@@ -82,13 +82,12 @@ class Import extends Command
     {
         $this->converter = $converter;
         $this->entries = $entries;
-
-        //$this->file = $this->choice('What file would you like to import?', $this->files());
+        $this->file = $this->choice('What file would you like to import?', $this->files());
 
         $posts = $this->parseXML();
 
         $posts->where('post_type', '=', 'post')->each(function ($post) {
-            $this->createArticle($post);
+            //$this->createArticle($post);
         });
     }
 
@@ -100,10 +99,10 @@ class Import extends Command
         //  Sun, 11 Apr 2010 00:54:00 +0000
         //  2015-12-09 20:32:51
         //  2014-02-16 23:51:42
-        $date = Carbon::createFromFormat('Y-m-d H:i:s', $post->post_date_gmt, new DateTimeZone('GMT'))->format('Y-m-d-Hi');
+        $date = Carbon::createFromFormat('Y-m-d H:i:s', $post->post_date_gmt, new DateTimeZone('GMT'))
+                      ->format('Y-m-d-Hi');
 
         $entry->date($date);
-        //dd($entry);
 
         $entry->collection('articles');
         $entry->slug(Str::slug($post->title));
