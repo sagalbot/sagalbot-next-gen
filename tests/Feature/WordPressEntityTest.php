@@ -100,7 +100,7 @@ class WordPressEntityTest extends TestCase
     /**
      * @test
      */
-    public function it_has_wordpress_meta()
+    public function it_has_wordpress_data()
     {
         $entity = WordPressEntity::from($this->item());
 
@@ -117,6 +117,6 @@ class WordPressEntityTest extends TestCase
             'post_type'      => "post",
             'post_password'  => "",
             'is_sticky'      => false,
-        ]), $entity->wordpressMeta());
+        ]), $entity->data());
     }
 }

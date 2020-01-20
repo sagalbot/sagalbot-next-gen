@@ -104,7 +104,7 @@ class WordPressEntity
         return (string) $this->element->link;
     }
 
-    public function wordpressMeta(): Collection
+    public function data(): Collection
     {
         return collect($this->element->children($this->namespaces['wp']))->filter(function (
             \SimpleXMLElement $element
