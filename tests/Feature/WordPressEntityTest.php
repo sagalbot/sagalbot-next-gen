@@ -86,4 +86,15 @@ class WordPressEntityTest extends TestCase
 
           $this->assertEquals('sagalbot', $entity->creator());
       }
+
+      /**
+       * @test
+       */
+       public function it_has_a_link()
+       {
+          $entity = WordPressEntity::from($this->item());
+
+          $this->assertEquals('http://code.sagalbot.com/jquery-2/introduction-to-jquery/', $entity->url());
+
+       }
 }

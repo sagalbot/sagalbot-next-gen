@@ -92,4 +92,9 @@ class WordPressEntity
     {
         return (string) $this->element->children('http://purl.org/dc/elements/1.1/')->creator;
     }
+
+    public function url(): string
+    {
+        return (string) $this->element->link;
+    }
 }
