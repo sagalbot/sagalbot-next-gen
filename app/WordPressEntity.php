@@ -32,6 +32,11 @@ class WordPressEntity
         $this->namespaces = $this->element->getDocNamespaces();
     }
 
+    public static function from(\SimpleXMLElement $element)
+    {
+        return new WordPressEntity($element);
+    }
+
     public function title(): string
     {
         return trim((string) $this->element->title);
@@ -45,11 +50,6 @@ class WordPressEntity
     public function publishedAt()
     {
         return Carbon::createFromFormat('Y-m-d H:i:s', $this->wordpress()->post_date_gmt, new DateTimeZone('GMT'));
-    }
-
-    public static function from(\SimpleXMLElement $element)
-    {
-        return new WordPressEntity($element);
     }
 
     /**
