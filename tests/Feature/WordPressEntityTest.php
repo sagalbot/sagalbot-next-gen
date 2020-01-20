@@ -47,15 +47,23 @@ class WordPressEntityTest extends TestCase
     /**
      * @test
      */
-     public function it_has_a_published_at_date()
-     {
+    public function it_has_a_published_at_date()
+    {
         $entity = WordPressEntity::from($this->item());
 
         //  2010-04-14 15:12:59
         $date = Carbon::create(2010, 4, 14, 15, 12, 59);
 
         $this->assertEquals($date, $entity->publishedAt());
-     }
+    }
 
-     
+    /**
+     * @test
+     */
+    public function it_has_post_content()
+    {
+        $entity = WordPressEntity::from($this->item());
+
+        $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->content());
+    }
 }

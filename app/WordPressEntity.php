@@ -4,6 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use DateTimeZone;
+use Illuminate\Support\Str;
 
 class WordPressEntity
 {
@@ -17,9 +18,12 @@ class WordPressEntity
      */
     protected $properties;
 
+    protected $namespaces;
+
     public function __construct(\SimpleXMLElement $element)
     {
         $this->element = $element;
+        $this->namespaces = $this->element->getDocNamespaces();
     }
 
     public function title(): string
@@ -29,7 +33,7 @@ class WordPressEntity
 
     public function wordpress()
     {
-        return $this->element->children($this->element->getDocNamespaces()['wp']);
+        return $this->element->children($this->namespaces['wp']);
     }
 
     public function publishedAt()
@@ -40,5 +44,17 @@ class WordPressEntity
     public static function from(\SimpleXMLElement $element)
     {
         return new WordPressEntity($element);
+    }
+
+    public function excerpt(): string
+    {
+        $excerpt = $this->element->children($this->namespaces['excerpt']);
+    }
+
+    public function content(): string
+    {
+        $content = $this->element->children('http://purl.org/rss/1.0/modules/content/');
+
+        return trim((string) Str::replaceFirst('<!--more-->', '', (string) $content->encoded));
     }
 }
