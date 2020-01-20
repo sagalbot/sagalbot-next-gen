@@ -5,6 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use DateTimeZone;
 use Illuminate\Support\Str;
+use phpDocumentor\Reflection\Types\Self_;
 
 class WordPressEntity
 {
@@ -19,6 +20,11 @@ class WordPressEntity
     protected $properties;
 
     protected $namespaces;
+
+    /**
+     * @var string
+     */
+    protected static $MORE = '<!--more-->';
 
     public function __construct(\SimpleXMLElement $element)
     {
@@ -46,15 +52,33 @@ class WordPressEntity
         return new WordPressEntity($element);
     }
 
+    /**
+     * If there's no excerpt defined, check if there is
+     * a <!--more--> used in the content.
+     */
     public function excerpt(): string
     {
-        $excerpt = $this->element->children($this->namespaces['excerpt']);
+        $excerpt = trim($this->rawExcerpt());
+
+        if ($excerpt === '' && Str::contains($this->rawContent(), self::$MORE)) {
+            $excerpt = Str::before($this->rawContent(), self::$MORE);
+        }
+
+        return $excerpt;
+    }
+
+    public function rawExcerpt(): string
+    {
+        return (string) $this->element->children($this->namespaces['excerpt'])->encoded;
     }
 
     public function content(): string
     {
-        $content = $this->element->children('http://purl.org/rss/1.0/modules/content/');
+        return trim(Str::replaceFirst('<!--more-->', '', $this->rawContent()));
+    }
 
-        return trim((string) Str::replaceFirst('<!--more-->', '', (string) $content->encoded));
+    protected function rawContent(): string
+    {
+        return (string) $this->element->children($this->namespaces['content'])->encoded;
     }
 }

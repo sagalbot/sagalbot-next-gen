@@ -66,4 +66,14 @@ class WordPressEntityTest extends TestCase
 
         $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->content());
     }
+
+    /**
+     * @test
+     */
+     public function it_has_post_excerpt()
+     {
+         $entity = WordPressEntity::from($this->item());
+
+         $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->excerpt());
+     }
 }

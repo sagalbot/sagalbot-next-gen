@@ -57,6 +57,8 @@
 
 For this and the posts to follow, I highly recommend you run <a href="http://www.mozilla.com/en-US/firefox/upgrade.html">Firefox</a>, with the <a href="http://getfirebug.com/">Firebug</a> plugin installed.
 
+<!--more-->
+
 If you have no programming experience whatsoever, I recommend starting out without the help of a framework, like jQuery. Learning the basics first will help you in the long run. For those of you familiar with actionscript, you are going to like jQuery, or even Javascript in general. The syntax is very similar. We'll start off with the basics.
 
 First of all, jQuery is a scripting framework. Frameworks are basically a library of code, that add additional functionality and changes the way you can write your code, typically increasing efficiency. In order to write jQuery, you need to include the library in the head section of any page that you will be using it on. The most efficient way to do so is by utilizing Google Code's hosted version of jQuery, by adding the following line to the head section of your html or php page.
@@ -109,7 +111,7 @@ Congrats. You just wrote your first script with jQuery. You'll notice our docume
 That's it for this entry, I hope you've learned something about jQuery. In the next one we'll get into more useful event listeners and maybe some simple animations.
 
 If you've got suggestions on a future tut, leave a comment!]]></content:encoded>
-            <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+            <excerpt:encoded><![CDATA[Well, I figured it's time I started adding some posts to the blog. We're starting off with one of my favorite subjects, <a href="http://jquery.com">jQuery</a>.]]></excerpt:encoded>
             <wp:post_id>107</wp:post_id>
             <wp:post_date><![CDATA[2010-04-14 09:12:59]]></wp:post_date>
             <wp:post_date_gmt><![CDATA[2010-04-14 15:12:59]]></wp:post_date_gmt>
