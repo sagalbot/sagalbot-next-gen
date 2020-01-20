@@ -5,7 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use DateTimeZone;
 use Illuminate\Support\Str;
-use phpDocumentor\Reflection\Types\Self_;
+use League\HTMLToMarkdown\HtmlConverter;
 
 class WordPressEntity
 {
@@ -26,10 +26,16 @@ class WordPressEntity
      */
     protected static $MORE = '<!--more-->';
 
+    /**
+     * @var \League\HTMLToMarkdown\HtmlConverter
+     */
+    protected $converter;
+
     public function __construct(\SimpleXMLElement $element)
     {
         $this->element = $element;
         $this->namespaces = $this->element->getDocNamespaces();
+        $this->converter = resolve(HtmlConverter::class);
     }
 
     public static function from(\SimpleXMLElement $element)
@@ -80,5 +86,10 @@ class WordPressEntity
     protected function rawContent(): string
     {
         return (string) $this->element->children($this->namespaces['content'])->encoded;
+    }
+
+    public function creator(): string
+    {
+        return (string) $this->element->children('http://purl.org/dc/elements/1.1/')->creator;
     }
 }

@@ -76,4 +76,14 @@ class WordPressEntityTest extends TestCase
 
          $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->excerpt());
      }
+
+     /**
+      * @test
+      */
+      public function it_has_a_creator()
+      {
+          $entity = WordPressEntity::from($this->item());
+
+          $this->assertEquals('sagalbot', $entity->creator());
+      }
 }
