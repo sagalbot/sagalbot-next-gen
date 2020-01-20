@@ -49,7 +49,7 @@ class WordPressEntity
         return trim((string) $this->element->title);
     }
 
-    public function wordpress()
+    public function wordpress(): \SimpleXMLElement
     {
         return $this->element->children($this->namespaces['wp']);
     }
@@ -106,9 +106,7 @@ class WordPressEntity
 
     public function data(): Collection
     {
-        return collect($this->element->children($this->namespaces['wp']))->filter(function (
-            \SimpleXMLElement $element
-        ) {
+        return collect($this->wordpress())->filter(function (\SimpleXMLElement $element) {
             return $element->count() === 0;
         })->map(function (\SimpleXMLElement $element) {
             //  TODO: this might be cleaner with a $casts property
@@ -126,5 +124,16 @@ class WordPressEntity
                     return (string) $element;
             }
         });
+    }
+
+    public function meta(): Collection
+    {
+        $meta = [];
+
+        foreach ($this->wordpress()->postmeta as $element) {
+            $meta[(string) $element->meta_key] = (string) $element->meta_value;
+        }
+
+        return collect($meta);
     }
 }

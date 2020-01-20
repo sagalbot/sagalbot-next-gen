@@ -119,4 +119,18 @@ class WordPressEntityTest extends TestCase
             'is_sticky'      => false,
         ]), $entity->data());
     }
+
+    /**
+     * @test
+     */
+    public function it_has_wordpress_post_meta()
+    {
+        $entity = WordPressEntity::from($this->item());
+
+        $this->assertEquals(collect([
+            '_edit_last'                 => '1',
+            '_syntaxhighlighter_encoded' => '1',
+            '_yoast_wpseo_linkdex'       => '0',
+        ]), $entity->meta());
+    }
 }
