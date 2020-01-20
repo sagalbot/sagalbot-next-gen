@@ -6,20 +6,19 @@ use Carbon\Carbon;
 use DateTimeZone;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use League\HTMLToMarkdown\HtmlConverter;
 
-class WordPressEntity
+class WordPressPost
 {
+    use ParsesWordPressDates;
+
     /**
      * @var \SimpleXMLElement
      */
     public $element;
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var array
      */
-    protected $properties;
-
     protected $namespaces;
 
     /**
@@ -27,21 +26,15 @@ class WordPressEntity
      */
     protected static $MORE = '<!--more-->';
 
-    /**
-     * @var \League\HTMLToMarkdown\HtmlConverter
-     */
-    protected $converter;
-
     public function __construct(\SimpleXMLElement $element)
     {
         $this->element = $element;
         $this->namespaces = $this->element->getDocNamespaces();
-        $this->converter = resolve(HtmlConverter::class);
     }
 
     public static function from(\SimpleXMLElement $element)
     {
-        return new WordPressEntity($element);
+        return new WordPressPost($element);
     }
 
     public function title(): string
@@ -57,11 +50,6 @@ class WordPressEntity
     public function publishedAt()
     {
         return $this->parseWordPressDate($this->wordpress()->post_date_gmt);
-    }
-
-    protected function parseWordPressDate(string $date): Carbon
-    {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('GMT'));
     }
 
     /**
@@ -135,5 +123,18 @@ class WordPressEntity
         }
 
         return collect($meta);
+    }
+
+    public function comments(): Collection
+    {
+        $comments = [];
+
+        foreach ($this->wordpress()->comment as $element) {
+            $comments[] = collect($element)->map(function (\SimpleXMLElement $element) {
+                return trim((string) $element);
+            });
+        }
+
+        return collect($comments);
     }
 }

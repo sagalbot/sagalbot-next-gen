@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\WordPressEntity;
+use App\WordPressPost;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -17,7 +17,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_accepts_a_simple_xml_element()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertEquals(\SimpleXMLElement::class, get_class($entity->element));
     }
@@ -27,7 +27,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_a_title()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertEquals('Introduction to jQuery', $entity->title());
     }
@@ -39,7 +39,7 @@ class WordPressEntityTest extends TestCase
     {
         $xml = simplexml_load_string('<item><title> Hello World </title></item>');
 
-        $entity = WordPressEntity::from($xml);
+        $entity = WordPressPost::from($xml);
 
         $this->assertEquals('Hello World', $entity->title());
     }
@@ -49,7 +49,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_a_published_at_date()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         //  2010-04-14 15:12:59
         $date = Carbon::create(2010, 4, 14, 15, 12, 59);
@@ -62,7 +62,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_post_content()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->content());
     }
@@ -72,7 +72,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_post_excerpt()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->excerpt());
     }
@@ -82,7 +82,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_a_creator()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertEquals('sagalbot', $entity->creator());
     }
@@ -92,7 +92,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_a_link()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertEquals('http://code.sagalbot.com/jquery-2/introduction-to-jquery/', $entity->url());
     }
@@ -102,7 +102,7 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_wordpress_data()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertEquals(collect([
             'post_id'        => 107,
@@ -125,12 +125,36 @@ class WordPressEntityTest extends TestCase
      */
     public function it_has_wordpress_post_meta()
     {
-        $entity = WordPressEntity::from($this->item());
+        $entity = WordPressPost::from($this->item());
 
         $this->assertEquals(collect([
             '_edit_last'                 => '1',
             '_syntaxhighlighter_encoded' => '1',
             '_yoast_wpseo_linkdex'       => '0',
         ]), $entity->meta());
+    }
+
+    /**
+     * @test
+     */
+    public function it_has_comments()
+    {
+        $entity = WordPressPost::from($this->item());
+
+        $this->assertCount(3, $entity->comments());
+        $this->assertEquals(collect([
+            'comment_id'           => '4',
+            'comment_author'       => 'Jeff',
+            'comment_author_email' => 'sagalbot@gmail.com',
+            'comment_author_url'   => 'http://www.sagalbot.com',
+            'comment_author_IP'    => '142.110.23.222',
+            'comment_date'         => '2010-04-16 14:15:48',
+            'comment_date_gmt'     => '2010-04-16 20:15:48',
+            'comment_content'      => 'Thanks for the suggestions. I\'ve made some changes to the entry.',
+            'comment_approved'     => '1',
+            'comment_type'         => '',
+            'comment_parent'       => '3',
+            'comment_user_id'      => '1',
+        ]), $entity->comments()[1]);
     }
 }
