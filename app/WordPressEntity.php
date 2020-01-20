@@ -4,6 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use DateTimeZone;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use League\HTMLToMarkdown\HtmlConverter;
 
@@ -55,7 +56,12 @@ class WordPressEntity
 
     public function publishedAt()
     {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $this->wordpress()->post_date_gmt, new DateTimeZone('GMT'));
+        return $this->parseWordPressDate($this->wordpress()->post_date_gmt);
+    }
+
+    protected function parseWordPressDate(string $date): Carbon
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('GMT'));
     }
 
     /**
@@ -96,5 +102,29 @@ class WordPressEntity
     public function url(): string
     {
         return (string) $this->element->link;
+    }
+
+    public function wordpressMeta(): Collection
+    {
+        return collect($this->element->children($this->namespaces['wp']))->filter(function (
+            \SimpleXMLElement $element
+        ) {
+            return $element->count() === 0;
+        })->map(function (\SimpleXMLElement $element) {
+            //  TODO: this might be cleaner with a $casts property
+            switch ($element->getName()) {
+                case 'post_id':
+                case 'post_parent':
+                case 'menu_order':
+                    return (int) $element;
+                case 'post_date':
+                case 'post_date_gmt':
+                    return $this->parseWordPressDate($element->__toString());
+                case 'is_sticky':
+                    return (boolean) (string) $element;
+                default:
+                    return (string) $element;
+            }
+        });
     }
 }

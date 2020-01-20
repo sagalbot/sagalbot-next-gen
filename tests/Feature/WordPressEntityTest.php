@@ -70,31 +70,53 @@ class WordPressEntityTest extends TestCase
     /**
      * @test
      */
-     public function it_has_post_excerpt()
-     {
-         $entity = WordPressEntity::from($this->item());
+    public function it_has_post_excerpt()
+    {
+        $entity = WordPressEntity::from($this->item());
 
-         $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->excerpt());
-     }
+        $this->assertStringContainsString('<a href="http://jquery.com">jQuery</a>', $entity->excerpt());
+    }
 
-     /**
-      * @test
-      */
-      public function it_has_a_creator()
-      {
-          $entity = WordPressEntity::from($this->item());
+    /**
+     * @test
+     */
+    public function it_has_a_creator()
+    {
+        $entity = WordPressEntity::from($this->item());
 
-          $this->assertEquals('sagalbot', $entity->creator());
-      }
+        $this->assertEquals('sagalbot', $entity->creator());
+    }
 
-      /**
-       * @test
-       */
-       public function it_has_a_link()
-       {
-          $entity = WordPressEntity::from($this->item());
+    /**
+     * @test
+     */
+    public function it_has_a_link()
+    {
+        $entity = WordPressEntity::from($this->item());
 
-          $this->assertEquals('http://code.sagalbot.com/jquery-2/introduction-to-jquery/', $entity->url());
+        $this->assertEquals('http://code.sagalbot.com/jquery-2/introduction-to-jquery/', $entity->url());
+    }
 
-       }
+    /**
+     * @test
+     */
+    public function it_has_wordpress_meta()
+    {
+        $entity = WordPressEntity::from($this->item());
+
+        $this->assertEquals(collect([
+            'post_id'        => 107,
+            'post_date'      => Carbon::create(2010, 4, 14, 9, 12, 59),
+            'post_date_gmt'  => Carbon::create(2010, 4, 14, 15, 12, 59),
+            'comment_status' => "open",
+            'ping_status'    => "open",
+            'post_name'      => "introduction-to-jquery",
+            'status'         => "publish",
+            'post_parent'    => 0,
+            'menu_order'     => 0,
+            'post_type'      => "post",
+            'post_password'  => "",
+            'is_sticky'      => false,
+        ]), $entity->wordpressMeta());
+    }
 }
