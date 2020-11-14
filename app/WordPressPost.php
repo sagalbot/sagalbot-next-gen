@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use DateTimeZone;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use League\HTMLToMarkdown\HtmlConverter;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class WordPressPost
 {
@@ -47,7 +49,7 @@ class WordPressPost
         return $this->element->children($this->namespaces['wp']);
     }
 
-    public function publishedAt()
+    public function publishedAt(): Carbon
     {
         return $this->parseWordPressDate($this->wordpress()->post_date_gmt);
     }
@@ -70,6 +72,14 @@ class WordPressPost
     public function rawExcerpt(): string
     {
         return (string) $this->element->children($this->namespaces['excerpt'])->encoded;
+    }
+
+    public function markdown()
+    {
+        /** @var HtmlConverter $converter */
+        $converter = resolve(HtmlConverter::class);
+
+        return $converter->convert($this->content());
     }
 
     public function content(): string
@@ -136,5 +146,39 @@ class WordPressPost
         }
 
         return collect($comments);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'title'     => $this->title(),
+            'author'    => $this->creator(),
+            'excerpt'   => $this->excerpt(),
+            'content'   => $this->markdown(),
+            'wordpress' => [
+                'meta' => $this->meta(),
+                'data' => $this->data(),
+            ],
+        ];
+    }
+
+    public function slug(): string
+    {
+        return Str::slug($this->title());
+    }
+
+    public function status(): string
+    {
+        return $this->data()->get('status');
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status() === 'publish' ? true : false;
+    }
+
+    public function isType(string $type): bool
+    {
+        return $this->data()->get('post_type') === $type;
     }
 }

@@ -157,4 +157,63 @@ class WordPressEntityTest extends TestCase
             'comment_user_id'      => '1',
         ]), $entity->comments()[1]);
     }
+
+    /**
+     * @test
+     */
+    public function it_has_an_array_representation()
+    {
+        $entity = WordPressPost::from($this->item());
+
+        $this->assertEquals([
+            'title'     => 'Introduction to jQuery',
+            'author'    => 'sagalbot',
+            'excerpt'   => $entity->excerpt(),
+            'content'   => $entity->markdown(),
+            'wordpress' => [
+                'meta' => $entity->meta(),
+                'data' => $entity->data(),
+            ],
+        ], $entity->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_has_a_markdown_version_of_the_content()
+    {
+        $entity = WordPressPost::from($this->item());
+
+        $this->assertStringContainsString('[Firefox](http://www.mozilla.com/en-US/firefox/upgrade.html)', $entity->markdown());
+    }
+
+    /**
+     * @test
+     */
+    public function it_has_a_slug()
+    {
+        $entity = WordPressPost::from($this->item());
+
+        $this->assertEquals('introduction-to-jquery', $entity->slug());
+    }
+
+    /**
+     * @test
+     */
+     public function it_has_a_status()
+     {
+         $entity = WordPressPost::from($this->item());
+
+         $this->assertEquals('publish', $entity->status());
+     }
+
+    /**
+     * @test
+     */
+     public function it_has_a_published_status()
+     {
+         $entity = WordPressPost::from($this->item());
+
+         $this->assertTrue($entity->isPublished());
+     }
 }
